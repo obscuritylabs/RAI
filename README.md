@@ -1,16 +1,16 @@
-# redteam-infrastructure
+# Rapid Attack Infrastructure
+
 Red Team Infrastructure... Simplified 
 
 What is the simple email recon tool? This tool was based off the work of theHarvester and kind of a port of the functionality. This was just an expansion of what was used to build theHarvester and will incorporate his work but allow users to easily build Modules for the Framework. Which I felt was desperately needed after building my first module for theHarvester.
 
 MAJOR CALLOUTS:
-- @laramies - Developer of theHarvester tool https://github.com/laramies/theHarvester
-- @CptJesus - Helped dev framework
+- @killswitch-gui
+- @reaperb0t
 
 
 Work Conducted by:
 ----------------------------------------------
-* Alexander Rymdeko-Harvey [Twitter] @Killswitch-GUI -- [Web] [CyberSydicates.com](http://cybersyndicates.com)
 * Keelyn Roberts [Twitter] @real_slacker007 -- [Web] [CyberSydicates.com](http://cybersyndicates.com)
 
 ## Scrape EVERYTHING - Simply 
