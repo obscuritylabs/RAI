@@ -17,7 +17,7 @@ sudo docker build -t repo/gophish:1.0 .
 ```
 docker run repo/https:1.0
 ```
-# **GoPhish USAGE GUIDE**  
+## **Use GoPhish**  
 
 After Gophish starts up, you can open a browser and navigate to **https://127.0.0.1:3333** to reach the login page.
 
