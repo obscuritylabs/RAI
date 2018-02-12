@@ -1,9 +1,9 @@
-# Rapid Attack Infrastructure using Docker Containers
+# Rapid Attack Infrastructure
 
 
 * Keelyn Roberts [Twitter] @real_slacker007 -- [Web] [ObscurityLabs](http://blog.obscuritylabs.com)
 ----------------------------------------------
-Red Team Infrastructure... Quick... Fast... Simplified 
+**Red Team Infrastructure... Quick... Fast... Simplified** 
 
 One of the most tedious phases of a Red Team Operation is usually the infrastructure setup.  This usually entails  
 a teamserver or controller, domains, redirectors, and a Phishing server.  Each of these have their own nuances
