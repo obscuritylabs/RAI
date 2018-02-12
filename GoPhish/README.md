@@ -1,9 +1,18 @@
-# **REDIRECTORS USAGE GUIDE**  
+# **GoPhish USAGE GUIDE**  
 
-## **DNS**
 
-The DNS redirector uses IPTables to forward traffic from the victim machine to the TeamServer.   The  
-usage is pretty straight forward.. **_dns_redir.sh ip.to.fwd.to port_**
+The GoPhish container allows you to manage your phishing campaign.  It allows you to monitor emails delivered, 
+opened, and clicked links. Gophish is a phishing framework that makes the simulation of real-world phishing attacks dead-simple. Per the creators of GoPhish; "The idea behind gophish is simple – make industry-grade phishing training available to everyone."
+
+
+After Gophish starts up, you can open a browser and navigate to https://127.0.0.1:3333 to reach the login page.
+The default credentials are:
+
+Gophish is a phishing framework that makes the simulation of real-world phishing attacks dead-simple. The idea behind gophish is simple – make industry-grade phishing training available to everyone. “Available”
+Username: admin
+Password: gophish
+## **Build Docker image**
+
 
 **EXAMPLE**
 
