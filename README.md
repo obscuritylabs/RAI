@@ -11,7 +11,7 @@ MAJOR CALLOUTS:
 
 Work Conducted by:
 ----------------------------------------------
-* Keelyn Roberts [Twitter] @real_slacker007 -- [Web] [obscurity.com](http://blog.obscuritylabs.com)
+* Keelyn Roberts [Twitter] @real_slacker007 -- [Web] [ObscurityLabs](http://blog.obscuritylabs.com)
 
 ## Scrape EVERYTHING - Simply 
 
