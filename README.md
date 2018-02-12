@@ -18,8 +18,6 @@ There are several issues that come to mind when considering how a painful and ti
 - Postfix    
 - IPTables   
 - Openssl   
-
-## **Each Section has its own Readme with Usage instruction**
   
 **MAJOR CALLOUTS:**
 - @killswitch-gui
