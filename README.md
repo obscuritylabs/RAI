@@ -1,4 +1,4 @@
-# Rapid Attack Infrastructure
+# Rapid Attack Infrastructure **(RAI)**
 
 
 * Keelyn Roberts [Twitter] @real_slacker007 -- [Web] [ObscurityLabs](http://blog.obscuritylabs.com)
