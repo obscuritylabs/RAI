@@ -23,8 +23,7 @@ https://blog.obscuritylabs.com/docker-command-controll-c2/
 ```
 
 ## CobaltStike 
-
-
+The manual process looks like this to build:
 1. Replace cskey with the license key of choice: `docker build --build-arg cskey="xxxx-xxxx-xxxx-xxxx" -t cobaltstrike\cs `
 2. Create volume storage: `docker create -v /opt/cobaltstrike --name cs-data cobaltstrike\cs`
 
