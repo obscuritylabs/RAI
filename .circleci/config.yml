@@ -26,4 +26,12 @@ jobs:
           name: Build GoPhish docker image
           command: |
             docker build -t repo/gophish:1.0 GoPhish/
+      - run:
+          name: Build HTTP Redirector
+          command: |
+            docker build --build-arg TEAM_SERVER="${TEST_URL}:80" --build-arg LPORT=80 -t rai/http:1.0 Redirectors/HTTP
+      - run:
+          name: Build HTTPS Redirector
+          command: |
+            docker build --build-arg TEAM_SERVER="${TEST_URL_HTTPS}:443" --build-arg LPORT=443 -t rai/https:1.0 Redirectors/HTTPS 
  
