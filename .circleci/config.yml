@@ -1,7 +1,6 @@
 version: 2
 jobs:
   build:
-    working_directory: /app
     docker:
       - image: docker:17.05.0-ce-git
     steps:
@@ -14,3 +13,12 @@ jobs:
               py-pip=9.0.0-r1
             pip install \
               docker-compose==1.12.0 
+     - restore_cache:
+          keys:
+            - v1-{{ .Branch }}
+          paths:
+            - /caches/app.tar
+    - run:
+          name: Build Empire docker image
+          command: |
+            docker build -t empireproject/empire AttackServers/Empire/
