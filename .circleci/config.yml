@@ -18,11 +18,11 @@ jobs:
       - run:
           name: Build Empire docker image
           command: |
-            docker build -t rai/empire AttackServers/Empire/
+            sudo docker build -t rai/empire AttackServers/Empire/
       - run:
           name: Build CobaltStrike docker image
           command: |
-            docker build --build-arg cskey="${CIRCLE_CS_KEY}" -t rai/cs AttackServers/CobaltStrike/
+            sudo docker build --build-arg cskey="${CIRCLE_CS_KEY}" -t rai/cs AttackServers/CobaltStrike/
       - run:
           name: Build GoPhish docker image
           command: |
