@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/obscuritylabs/RAI/tree/master.svg?style=svg)](https://circleci.com/gh/obscuritylabs/RAI/tree/master)
 # Rapid Attack Infrastructure (RAI)
 **Red Team Infrastructure... Quick... Fast... Simplified** 
 
