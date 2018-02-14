@@ -13,7 +13,7 @@ jobs:
               py-pip=9.0.0-r1
             pip install \
               docker-compose==1.12.0 
-            apk add update \
+            apk update \
             apk add sudo
       - run:
           name: Build Empire docker image
