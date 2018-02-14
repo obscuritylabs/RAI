@@ -25,5 +25,5 @@ jobs:
       - run:
           name: Build GoPhish docker image
           command: |
-            sudo docker build -t repo/gophish:1.0 GoPhish/
+            docker build -t repo/gophish:1.0 GoPhish/
  
