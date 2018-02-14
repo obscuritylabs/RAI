@@ -21,3 +21,8 @@ jobs:
           name: Build CobaltStrike docker image
           command: |
             docker build --build-arg cskey="${CIRCLE_CS_KEY}" -t rai/cs AttackServers/CobaltStrike/
+      - run:
+          name: Build GoPhish docker image
+          command: |
+            sudo docker build -t repo/gophish:1.0 GoPhish/
+ 
