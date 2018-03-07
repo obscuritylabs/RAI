@@ -47,7 +47,7 @@ echo "\ndaemon off;" >> nginx.conf && \
 chown -R www-data:www-data /var/lib/nginx && \
 openssl req -x509 -sha256 -newkey rsa:2048 -keyout /etc/nginx/ssl/gte-key.pem \
 -out /etc/nginx/ssl/gte-cert.pem -days 365 -nodes \
--subj "/C=US/ST=NY/L=New York/O=Corps Dist Ltd/OU=SCA/CN=ssl.CorpsDistributors.com"
+-subj "/C=US/ST=NY/L=New York/O=Corps Dist Ltd/OU=SCA/CN=ssl.COMMODO.com"
 
 # Define Mountable Directories
 VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", \
