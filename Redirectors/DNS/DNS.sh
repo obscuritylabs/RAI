@@ -1,6 +1,6 @@
 #!/bin/bash
 #DNS Redirection Script
-# <@slacker007>
+# <@real_slacker007>
 
 
 ERROR="EXAMPLE USAGE: ./dns_redir.sh 192.168.1.5 2224" 
