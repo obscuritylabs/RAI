@@ -1,5 +1,5 @@
 #!/bin/bash
-#@slacker007
+#@real_slacker007
 
 echo "$(tput setaf 2)[Updating Packages]...$(tput sgr0)";
 sudo apt-get update -qq && apt-get upgrade -y -qq;
