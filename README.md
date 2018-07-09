@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="https://github.com/obscuritylabs/RAI/blob/master/docs/saved0.svg">
+</p>
 # Rapid Attack Infrastructure (RAI)
 **Red Team Infrastructure... Quick... Fast... Simplified** 
 
