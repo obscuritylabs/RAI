@@ -1,7 +1,9 @@
 <p align="center">
   <img src="https://github.com/obscuritylabs/RAI/blob/master/docs/saved0.svg">
 </p>
+
 # Rapid Attack Infrastructure (RAI)
+
 **Red Team Infrastructure... Quick... Fast... Simplified** 
 
 One of the most tedious phases of a Red Team Operation is usually the infrastructure setup. This usually entails  
