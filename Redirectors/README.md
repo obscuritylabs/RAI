@@ -33,7 +33,7 @@ docker build --build-arg TEAM_SERVER="https://TEAM_SERVER_IP:port_fwdg_to" --bui
 ```
 
 **Create a container**  
-**a.b.c.d** - This is the public IP for the Redirector  
+**a.b.c.d** - This is the public IP for the Redirector (if using AWS, use the internal IP for the server) 
 **e** - This is the port that will be exposed on the host  
 **f** - This is the port that will correspond with the port you specified with the LPORT value when  
         the image was built.  It will be mapped to the port exposed on the host.   
