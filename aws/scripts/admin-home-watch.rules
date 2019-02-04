@@ -1,0 +1,3 @@
+# Monitor administrator access to /home directories
+
+-a always,exit -F dir=/home/ -F uid=0 -C auid!=obj_uid -k admin_user_home

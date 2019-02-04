@@ -1,0 +1,2 @@
+[local]
+#localhost ansible_python_interpreter=~/virtualenv/python2.7/bin/python

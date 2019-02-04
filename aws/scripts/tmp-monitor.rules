@@ -1,0 +1,5 @@
+# Monitor changes and executions within /tmp
+
+-w /tmp/ -p wa -k tmp_write
+
+-w /tmp/ -p x -k tmp_exec

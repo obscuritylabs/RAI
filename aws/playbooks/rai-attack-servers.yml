@@ -1,0 +1,960 @@
+---
+# Basic provisioning:
+#   Builds Redis server for light house in AWS using 
+#   private IP and set of ansible galaxy roles.
+
+- name: Create AWS attack resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    aws_access_key: "{{ lookup('env','aws_access_key') }}"
+    aws_secret_key: "{{ lookup('env','aws_secret_key') }}"
+    # cloudflare_account_email: "{{ lookup('env','cloudflare_account_email') }}"
+    # cloudflare_api_token: "{{ lookup('env','cloudflare_api_token') }}"
+  tasks:
+    ########### SSH KEYING ###########
+    - name: Create RAI key_pair for attack servers
+      ec2_key:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        name: RAI
+        key_material: "{{ lookup('file', '~/.ssh/RAI.pub') }}"
+        region: "{{aws_region}}"
+
+    - name: Create RAI key_pair for dns redirector servers
+      ec2_key:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        name: RAI
+        key_material: "{{ lookup('file', '~/.ssh/RAI.pub') }}"
+        region: "{{rai_redirector_server_dns_region}}"
+
+    - name: Create RAI key_pair for http redirector servers
+      ec2_key:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        name: RAI
+        key_material: "{{ lookup('file', '~/.ssh/RAI.pub') }}"
+        region: "{{rai_redirector_server_http_region}}"
+
+    - name: Create RAI key_pair for https redirector servers
+      ec2_key:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        name: RAI
+        key_material: "{{ lookup('file', '~/.ssh/RAI.pub') }}"
+        region: "{{rai_redirector_server_https_region}}"
+        
+    ########### VPC CREATION ###########
+    - name: Create RAI Attack Server VPC 
+      ec2_vpc_net:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        name: "{{rai_attack_server_vpc_name}}"
+        cidr_block: "{{rai_attack_vpc_cidr}}"
+        region: "{{aws_region}}"
+        tags:
+          stack: "{{rai_stack_tag}}"
+      register: vpc_results
+
+    - name: Create HTTP RAI redirector Server VPC 
+      ec2_vpc_net:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "{{ rai_redirector_server_vpc_name }}"
+        cidr_block: "{{ rai_redirector_vpc_cidr }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: http_vpc_results
+
+    - name: Create HTTPs RAI redirector Server VPC 
+      ec2_vpc_net:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "{{ rai_redirector_server_vpc_name }}"
+        cidr_block: "{{ rai_redirector_vpc_cidr }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: https_vpc_results
+
+    - name: Create DNS RAI redirector Server VPC 
+      ec2_vpc_net:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "{{ rai_redirector_server_vpc_name }}"
+        cidr_block: "{{ rai_redirector_vpc_cidr }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: dns_vpc_results
+
+    ########### VPC SUBNET CREATION ###########
+    - name: Create RAI Attack VPC Subnet
+      ec2_vpc_subnet:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        region: "{{aws_region}}"
+        vpc_id: "{{vpc_results.vpc.id}}"
+        cidr: "{{rai_attack_vpc_cidr}}"
+        resource_tags:
+          stack: "{{rai_stack_tag}}"
+      register: vpc_subnet_results
+
+    - name: Create HTTP RAI redirector VPC Subnet
+      ec2_vpc_subnet:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        vpc_id: "{{ http_vpc_results.vpc.id }}"
+        cidr: "{{ rai_redirector_vpc_cidr }}"
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: http_vpc_subnet_results
+      
+    - name: Create HTTPS RAI redirector VPC Subnet
+      ec2_vpc_subnet:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        vpc_id: "{{ https_vpc_results.vpc.id }}"
+        cidr: "{{ rai_redirector_vpc_cidr }}"
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: https_vpc_subnet_results
+
+    - name: Create DNS RAI redirector VPC Subnet
+      ec2_vpc_subnet:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        vpc_id: "{{ dns_vpc_results.vpc.id }}"
+        cidr: "{{ rai_redirector_vpc_cidr }}"
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: dns_vpc_subnet_results
+
+    ########### VPC IGW CREATION ###########
+    - name: Create RAI AWS VPC IGW
+      ec2_vpc_igw:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        region: "{{aws_region}}"
+        vpc_id: "{{vpc_results.vpc.id}}"
+        state: present
+        resource_tags:
+          stack: "{{rai_stack_tag}}"
+      register: vpc_igw_results
+    
+    - name: Create HTTP RAI redirector VPC IGW
+      ec2_vpc_igw:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        vpc_id: "{{ http_vpc_results.vpc.id }}"
+        state: present
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: http_vpc_igw_results
+    
+    - name: Create HTTPS RAI redirector VPC IGW
+      ec2_vpc_igw:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        vpc_id: "{{ https_vpc_results.vpc.id }}"
+        state: present
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: https_vpc_igw_results
+    
+    - name: Create DNS RAI redirector VPC IGW
+      ec2_vpc_igw:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        vpc_id: "{{ dns_vpc_results.vpc.id }}"
+        state: present
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: dns_vpc_igw_results
+  
+    ########### VPC ROUTE TABLE LOCATE ###########
+    - name: Locate current VPC route table ID
+      ec2_vpc_route_table_facts:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        region: "{{aws_region}}"
+        filters:
+          vpc-id: "{{vpc_results.vpc.id}}"
+      register: vpc_rtbl_facts
+
+    - name: Locate current HTTP redirector VPC route table ID
+      ec2_vpc_route_table_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        filters:
+          vpc-id: "{{ http_vpc_results.vpc.id }}"
+      register: http_vpc_rtbl_facts
+    
+    - name: Locate current HTTPS redirector VPC route table ID
+      ec2_vpc_route_table_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        filters:
+          vpc-id: "{{ https_vpc_results.vpc.id }}"
+      register: https_vpc_rtbl_facts
+
+    - name: Locate current DNS redirector VPC route table ID
+      ec2_vpc_route_table_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        filters:
+          vpc-id: "{{ dns_vpc_results.vpc.id }}"
+      register: dns_vpc_rtbl_facts
+
+    ########### VPC ROUTE TABLE CREATION ###########
+    - name: Create AWS VPC Route Table
+      ec2_vpc_route_table:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        route_table_id: "{{vpc_rtbl_facts.route_tables[0].id}}"
+        region: "{{aws_region}}"
+        vpc_id: "{{vpc_results.vpc.id}}"
+        subnets:
+          - "{{vpc_subnet_results.subnet.id}}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{vpc_igw_results.gateway_id}}"
+        resource_tags:
+          stack: "{{rai_stack_tag}}"
+      register: vpc_rtbl_results
+
+    - name: Create HTTP redirector VPC Route Table
+      ec2_vpc_route_table:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        route_table_id: "{{ http_vpc_rtbl_facts.route_tables[0].id }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        vpc_id: "{{ http_vpc_results.vpc.id }}"
+        subnets:
+          - "{{ http_vpc_subnet_results.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ http_vpc_igw_results.gateway_id }}"
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: http_vpc_rtbl_results
+
+    - name: Create HTTPS redirector VPC Route Table
+      ec2_vpc_route_table:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        route_table_id: "{{ https_vpc_rtbl_facts.route_tables[0].id }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        vpc_id: "{{ https_vpc_results.vpc.id }}"
+        subnets:
+          - "{{ https_vpc_subnet_results.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ https_vpc_igw_results.gateway_id }}"
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: https_vpc_rtbl_results
+    
+    - name: Create DNS redirector VPC Route Table
+      ec2_vpc_route_table:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        route_table_id: "{{ dns_vpc_rtbl_facts.route_tables[0].id }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        vpc_id: "{{ dns_vpc_results.vpc.id }}"
+        subnets:
+          - "{{ dns_vpc_subnet_results.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ dns_vpc_igw_results.gateway_id }}"
+        resource_tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: dns_vpc_rtbl_results
+
+    ########### VPC SECURITY GROUP ###########
+    - name: Create AWS webstack security group
+      ec2_group:
+        name: rai_default
+        description: "rai security group"
+        region: "{{aws_region}}"
+        vpc_id: "{{vpc_results.vpc.id}}"
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        rules:
+          - proto: all
+            cidr_ip: "{{rai_attack_vpc_cidr}}"
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: udp
+            from_port: 53
+            to_port: 53
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+          - proto: all
+            group_name: rai_default
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+        tags:
+          stack: "{{rai_stack_tag}}"
+      register: results 
+
+    - name: Create HTTP redirector webstack security group
+      ec2_group:
+        name: rai_default
+        description: "rai security group"
+        region: "{{ rai_redirector_server_http_region }}"
+        vpc_id: "{{ http_vpc_results.vpc.id }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        rules:
+          - proto: all
+            cidr_ip: "{{ rai_redirector_vpc_cidr }}"
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: all
+            group_name: rai_default
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+        tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: http_results
+
+    - name: Create HTTPS redirector webstack security group
+      ec2_group:
+        name: rai_default
+        description: "rai security group"
+        region: "{{ rai_redirector_server_https_region }}"
+        vpc_id: "{{ https_vpc_results.vpc.id }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        rules:
+          - proto: all
+            cidr_ip: "{{ rai_redirector_vpc_cidr }}"
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+          - proto: all
+            group_name: rai_default
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+        tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: https_results
+
+    - name: Create DNS redirector webstack security group
+      ec2_group:
+        name: rai_default
+        description: "rai security group"
+        region: "{{ rai_redirector_server_dns_region }}"
+        vpc_id: "{{ dns_vpc_results.vpc.id }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        rules:
+          - proto: all
+            cidr_ip: "{{ rai_redirector_vpc_cidr }}"
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: udp
+            from_port: 53
+            to_port: 53
+            cidr_ip: 0.0.0.0/0
+          - proto: all
+            group_name: rai_default
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+        tags:
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: dns_results
+
+    ########### ATTACK EC2 CREATION ###########
+    - name: Create RAI HTTP Attack Server
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        key_name: "{{ key_name }}"
+        region: "{{ rai_attack_server_http_region}}"
+        vpc_subnet_id: "{{vpc_subnet_results.subnet.id}}"
+        group_id: "{{results.group_id}}"
+        instance_type: "{{ rai_attack_server_http_instance_type }}"
+        image: "{{ ami_id }}"
+        assign_public_ip: true
+        wait: yes
+        volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: "{{ rai_attack_server_http_disk_size }}"
+          delete_on_termination: true
+        instance_tags: 
+          Name: "{{ rai_attack_server_http_name }}"
+          stack: "{{ rai_stack_tag }}"
+      register: http_attack_ec2
+
+    - name: Create RAI HTTPS Attack Server
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        key_name: "{{ key_name }}"
+        region: "{{ rai_attack_server_http_region}}"
+        vpc_subnet_id: "{{vpc_subnet_results.subnet.id}}"
+        group_id: "{{results.group_id}}"
+        instance_type: "{{ rai_attack_server_https_instance_type }}"
+        image: "{{ ami_id }}"
+        assign_public_ip: true
+        wait: yes
+        volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: "{{ rai_attack_server_https_disk_size }}"
+          delete_on_termination: true
+        instance_tags: 
+          Name: "{{ rai_attack_server_https_name }}"
+          stack: "{{ rai_stack_tag }}"
+      register: https_attack_ec2
+  
+    - name: Create RAI DNS Attack Server
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        key_name: "{{ key_name }}"
+        region: "{{ rai_attack_server_dns_region}}"
+        vpc_subnet_id: "{{vpc_subnet_results.subnet.id}}"
+        group_id: "{{results.group_id}}"
+        instance_type: "{{ rai_attack_server_dns_instance_type }}"
+        image: "{{ ami_id }}"
+        assign_public_ip: true
+        wait: yes
+        volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: "{{ rai_attack_server_dns_disk_size }}"
+          delete_on_termination: true
+        instance_tags: 
+          Name: "{{ rai_attack_server_dns_name }}"
+          stack: "{{ rai_stack_tag }}"
+      register: dns_attack_ec2
+
+    ########### REDIRECTOR EC2 CREATION ###########
+    - name: Create RAI HTTP Redirector Server
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        key_name: "{{ key_name }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        vpc_subnet_id: "{{ http_vpc_subnet_results.subnet.id }}"
+        group_id: "{{ http_results.group_id }}"
+        instance_type: "{{ rai_redirector_server_http_instance_type }}"
+        image: "{{ rai_redirector_server_http_ami }}"
+        assign_public_ip: true
+        wait: yes
+        volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: "{{ rai_redirector_server_http_disk_size }}"
+          delete_on_termination: true
+        instance_tags: 
+          Name: "{{ rai_redirector_server_http_name }}"
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: http_redirector_ec2
+
+    - name: Create RAI HTTPS Redirector Server
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        key_name: "{{ key_name }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        vpc_subnet_id: "{{ https_vpc_subnet_results.subnet.id }}"
+        group_id: "{{ https_results.group_id }}"
+        instance_type: "{{ rai_redirector_server_https_instance_type }}"
+        image: "{{ rai_redirector_server_https_ami }}"
+        assign_public_ip: true
+        wait: yes
+        volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: "{{ rai_redirector_server_https_disk_size }}"
+          delete_on_termination: true
+        instance_tags: 
+          Name: "{{ rai_redirector_server_https_name }}"
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: https_redirector_ec2
+
+    - name: Create RAI DNS Redirector Server
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        key_name: "{{ key_name }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        vpc_subnet_id: "{{ dns_vpc_subnet_results.subnet.id }}"
+        group_id: "{{ dns_results.group_id }}"
+        instance_type: "{{ rai_redirector_server_dns_instance_type }}"
+        image: "{{ rai_redirector_server_dns_ami }}"
+        assign_public_ip: true
+        wait: yes
+        volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: "{{ rai_redirector_server_dns_disk_size }}"
+          delete_on_termination: true
+        instance_tags: 
+          Name: "{{ rai_redirector_server_dns_name }}"
+          stack: "{{ rai_redirector_stack_tag }}"
+      register: dns_redirector_ec2
+
+    ########### WAIT FOR EC2 SETUP ###########
+    - name: Wait for DNS attack server SSH to come up
+      remote_user: ubuntu
+      no_log: false
+      wait_for:
+        host: "{{item.public_dns_name}}"
+        port: 22
+        delay: 0
+        timeout: 320
+        state: started
+      with_items: "{{dns_attack_ec2.instances}}"
+
+    - name: Wait for HTTP attack server SSH to come up
+      remote_user: ubuntu
+      no_log: false
+      wait_for:
+        host: "{{item.public_dns_name}}"
+        port: 22
+        delay: 0
+        timeout: 320
+        state: started
+      with_items: "{{http_attack_ec2.instances}}"
+
+    - name: Wait for HTTPS attack server SSH to come up
+      remote_user: ubuntu
+      wait_for:
+        host: "{{item.public_dns_name}}"
+        port: 22
+        delay: 0
+        timeout: 320
+        state: started
+      with_items: "{{https_attack_ec2.instances}}"
+    
+    - name: Wait for HTTP redirector SSH to come up
+      remote_user: ubuntu
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        delay: 0
+        timeout: 320
+        state: started
+      with_items: "{{ http_redirector_ec2.instances }}"
+
+    - name: Wait for HTTPS redirector SSH to come up
+      remote_user: ubuntu
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        delay: 0
+        timeout: 320
+        state: started
+      with_items: "{{ https_redirector_ec2.instances }}"
+
+    - name: Wait for DNS redirector SSH to come up
+      remote_user: ubuntu
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        delay: 0
+        timeout: 320
+        state: started
+      with_items: "{{ dns_redirector_ec2.instances }}"
+
+    ########### CREATE SOLO ATTACK HOST GROUPS ###########
+     - name: Add new instance to host group
+      add_host:
+        hostname: "{{item.public_ip}}"
+        groupname: http_attack_launched
+      with_items: "{{http_attack_ec2.instances}}"
+
+     - name: Add new instance to host group
+      add_host:
+        hostname: "{{item.public_ip}}"
+        groupname: https_attack_launched
+      with_items: "{{https_attack_ec2.instances}}"
+    
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{item.public_ip}}"
+        groupname: dns_attack_launched
+      with_items: "{{dns_attack_ec2.instances}}"
+
+    ########### CREATE ATTACK HOST GROUPS ###########
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{item.public_ip}}"
+        groupname: launched
+      with_items: "{{https_attack_ec2.instances}}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{item.public_ip}}"
+        groupname: launched
+      with_items: "{{http_attack_ec2.instances}}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{item.public_ip}}"
+        groupname: launched
+      with_items: "{{dns_attack_ec2.instances}}"
+
+    ########### CREATE REDIRECTOR HOST GROUPS ###########
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: http_redirector_launched
+      with_items: "{{ http_redirector_ec2.instances }}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: https_redirector_launched
+      with_items: "{{ https_redirector_ec2.instances }}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: dns_redirector_launched
+      with_items: "{{ dns_redirector_ec2.instances }}"
+
+#######  START SERVER INSTALL  #######
+########### INSTALL BOOTSTRAP FOR ALL INSTANCES ###########
+- name: Install ansible bootstrap
+  hosts: all
+  become: True
+  gather_facts: False
+  no_log: false
+  tasks:
+  - name: Install python 2
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
+########### UPDATE ALL INSTANCES ###########
+- name: Update instance(s)
+  hosts: all
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Run the equivalent of "apt-get update" 
+      apt:
+        update_cache: yes
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: full
+    - name: Update all packages to the latest version
+      apt:
+        name: python-pip
+        state: present
+    - name: Install ifstat
+      apt:
+        name: ifstat
+        state: present
+    - name: Install tcpdump
+      apt:
+        name: tcpdump
+        state: present
+    
+
+########### SETUP COMMON PACKAGES ###########
+- name: Configure instance(s)
+  hosts: all
+  become: True
+  gather_facts: True
+  roles:
+    - role: geerlingguy.git 
+    - role: geerlingguy.docker 
+    - role: weareinteractive.docker_compose
+    - role: leesoh.neo4j
+    - role: geerlingguy.firewall
+
+
+- name: Prep terminal logging
+  hosts: all
+  become: True
+  gather_facts: True
+  tasks:
+      - pip:
+          name: lterm
+      - pip:
+          name: docker
+      - pip:
+          name: docker-compose
+
+- name: Prep common Docker images
+  hosts: all
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Grab Ubuntu 16.04 LTS
+      docker_image:
+        name: ubuntu:16.04
+    - name: Grab Ubuntu 18.04 LTS
+      docker_image:
+        name: ubuntu:18.04
+        
+########### SETUP ATTACK SERVERS ###########
+# https://github.com/bluscreenofjeff/Malleable-C2-Randomizer.git
+# https://github.com/bluscreenofjeff/AggressorScripts.git
+# https://github.com/bluscreenofjeff/MalleableC2Profiles.git
+# https://github.com/EmpireProject/Empire.git
+# https://github.com/n1nj4sec/pupy
+# https://github.com/killswitch-GUI/CobaltStrike-ToolKit.git
+# https://github.com/adaptivethreat/Bloodhound
+#
+# DOCS
+# https://github.com/bluscreenofjeff/Red-Team-Infrastructure-Wiki.git
+# https://github.com/enaqx/awesome-pentest.git
+
+- name: Install generic tooling for other plays
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Create tool directory
+      file:
+        path: /opt/tools
+        state: directory
+    - name: Create docs directory
+      file:
+        path: /opt/docs
+        state: directory
+    - name: Install RAI for docker images
+      git:
+        repo: https://github.com/obscuritylabs/RAI.git
+        dest: /opt/tools/RAI
+    - name: Install Malleable-C2-Randomizer
+      git:
+        repo: https://github.com/bluscreenofjeff/Malleable-C2-Randomizer.git
+        dest: /opt/tools/Malleable-C2-Randomizer
+    - name: Install AggressorScripts (bluscreenofjeff)
+      git:
+        repo: https://github.com/bluscreenofjeff/AggressorScripts.git
+        dest: /opt/tools/Malleable-C2-Randomizer
+    - name: Install MalleableC2Profiles (bluscreenofjeff)
+      git:
+        repo: https://github.com/bluscreenofjeff/MalleableC2Profiles.git
+        dest: /opt/tools/MalleableC2Profiles
+    - name: Install Red-Team-Infrastructure-Wiki (bluscreenofjeff + other bad boys)
+      git:
+        repo: https://github.com/bluscreenofjeff/Red-Team-Infrastructure-Wiki.git
+        dest: /opt/docs/Red-Team-Infrastructure-Wiki
+    - name: Install awesome-pentest
+      git:
+        repo: https://github.com/enaqx/awesome-pentest.git
+        dest: /opt/docs/awesome-pentest
+
+
+- name: Configure OpenJDK
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+  - name: Install OpenJDK-11
+    apt:
+      name: openjdk-11-jdk
+      state: present
+  - name: Set default jdk
+    raw: update-java-alternatives -s java-1.11.0-openjdk-amd64
+
+- name: Install Empire on attack servers
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Creates directory
+      file:
+        path: /opt/implant
+        state: directory
+    - name: SET ENV
+      shell: "echo $RANDOM"
+      environment:
+        STAGING_KEY: RANDOM
+    - name: GIT Empire
+      git:
+        repo: https://github.com/EmpireProject/Empire.git
+        dest: /opt/implant/Empire
+    #- name: Install Empire
+    #  raw: python2.7 /opt/implant/Empire/setup/setup_database.py
+
+- name: Install Pupy on attack servers
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Creates directory
+      file:
+        path: /opt/implant
+        state: directory
+    - name: GIT pupy
+      git:
+        repo: https://github.com/n1nj4sec/pupy.git
+        dest: /opt/implant/pupy
+        recursive: yes
+
+- name: Install Throwback on attack servers
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Creates directory
+      file:
+        path: /opt/implant
+        state: directory
+    - name: GIT pupy
+      git:
+        repo: https://github.com/silentbreaksec/Throwback.git
+        dest: /opt/implant/Throwback
+        recursive: yes
+
+- name: Install Metasploit on attack servers
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Install metasploit nightly installer
+      shell: curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall
+    - name: Clean up installer
+      shell: rm msfinstall
+
+- name: Install web tools on attack servers
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Creates directory
+      file:
+        path: /opt/web
+        state: directory
+    - name: GIT nikto
+      git:
+        repo: https://github.com/sullo/nikto.git
+        dest: /opt/web/nikto
+        recursive: yes
+    - name: GIT wpscan
+      git:
+        repo: https://github.com/wpscanteam/wpscan
+        dest: /opt/web/wpscan
+    - name: GIT SQLmap
+      git: 
+        repo: https://github.com/sqlmapproject/sqlmap.git
+        dest: /opt/web/sqlmap
+        recursive: yes
+
+- name: Install network tools on attack servers
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Creates directory
+      file:
+        path: /opt/network
+        state: directory
+    - name: Install NMAP
+      apt:
+        name: nmap
+        state: present
+
+- name: Start hardening playbook for attack servers
+  hosts: launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Install unattended-upgrades 
+      apt:
+        name: unattended-upgrades 
+        state: present
+    - name: Install libpam-pwquality
+      apt: 
+        name: libpam-pwquality
+        state: present
+    - name: Creates directory
+      file:
+        path: /opt/monitor
+        state: directory
+    - name: GIT auditd config
+      git:
+        repo: https://github.com/Neo23x0/auditd.git
+        dest: /opt/monitor/auditd
+
+########### SETUP HTTP REDIRECTOR ###########
+- name: Start hardening playbook for attack servers
+  hosts: http_redirector_launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Lookup AWS IP for attack server
+    - name: Install RAI
+      git:
+        repo: https://github.com/obscuritylabs/RAI.git
+        dest: /opt/RAI
+    - name: Build HTTP NGINX redirector 
+      docker_image:
+        path: /opt/RAI/Redirectors/HTTP/
+        name: rai_http_redirector
+        buildargs:
+          TEAM_SERVER: http://{{hostvars[http_attack_launched]['ansible_default_ipv4']['address']}}:80
+          LPORT: 80
+  
+
+########### SETUP HTTPS REDIRECTOR ###########
+- name: Start hardening playbook for attack servers
+  hosts: https_redirector_launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Install RAI
+      git:
+        repo: https://github.com/obscuritylabs/RAI.git
+        dest: /opt/RAI
+
+
+########### SETUP DNS REDIRECTOR ###########
+- name: Start hardening playbook for attack servers
+  hosts: dns_redirector_launched
+  become: True
+  gather_facts: True
+  tasks:
+    - name: Install RAI
+      git:
+        repo: https://github.com/obscuritylabs/RAI.git
+        dest: /opt/RAI

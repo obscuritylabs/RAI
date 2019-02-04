@@ -1,0 +1,47 @@
+aws_region: us-east-1
+ami_id: ami-0ac019f4fcb7cb7e6
+key_name: RAI
+rai_install_dir: /opt/rai/
+
+rai_stack_tag: rai
+rai_attack_server_vpc_name: rai
+rai_attack_vpc_cidr: 10.0.0.0/16
+
+rai_redirector_stack_tag: rai
+rai_redirector_server_vpc_name: rai
+rai_redirector_vpc_cidr: 10.0.0.0/16
+
+rai_attack_server_http_region: us-east-1
+rai_attack_server_http_name: rai-attack-http
+rai_attack_server_http_instance_type: t2.micro
+rai_attack_server_http_disk_size: 20
+
+rai_attack_server_https_region: us-east-1
+rai_attack_server_https_name: rai-attack-https
+rai_attack_server_https_instance_type: t2.micro
+rai_attack_server_https_disk_size: 20
+
+rai_attack_server_dns_region: us-east-1
+rai_attack_server_dns_name: rai-attack-dns
+rai_attack_server_dns_instance_type: t2.micro
+rai_attack_server_dns_disk_size: 20
+
+
+
+rai_redirector_server_dns_region: us-west-1
+rai_redirector_server_dns_name: rai-redirector-dns
+rai_redirector_server_dns_instance_type: t2.nano
+rai_redirector_server_dns_disk_size: 10
+rai_redirector_server_dns_ami: ami-063aa838bd7631e0b
+
+rai_redirector_server_http_region: us-east-2
+rai_redirector_server_http_name: rai-redirector-http
+rai_redirector_server_http_instance_type: t2.nano
+rai_redirector_server_http_disk_size: 10
+rai_redirector_server_http_ami: ami-0f65671a86f061fcd
+
+rai_redirector_server_https_region: us-west-2
+rai_redirector_server_https_name: rai-redirector-https
+rai_redirector_server_https_instance_type: t2.nano
+rai_redirector_server_https_disk_size: 10
+rai_redirector_server_https_ami: ami-0bbe6b35405ecebdb

@@ -1,0 +1,86 @@
+---
+# Basic provisioning:
+#   Builds Redis server for light house in AWS using 
+#   private IP and set of ansible galaxy roles.
+
+- name: Terminate AWS resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    aws_access_key: "{{ lookup('env','aws_access_key') }}"
+    aws_secret_key: "{{ lookup('env','aws_secret_key') }}"
+  tasks:
+    ########### LOCATE RESOURCES ###########
+    - name: Locate attack EC2 RAI stack instances
+      ec2_instance_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ aws_region }}"
+        filters:
+          "tag:stack": "{{ rai_stack_tag }}"
+      register: attack_ec2
+    
+    - name: Locate HTTP redirector EC2 RAI stack instances
+      ec2_instance_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        filters:
+          "tag:stack": "{{ rai_redirector_stack_tag }}"
+      register: http_redirector_ec2
+    
+    - name: Locate HTTPS redirector EC2 RAI stack instances
+      ec2_instance_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        filters:
+          "tag:stack": "{{ rai_redirector_stack_tag }}"
+      register: https_redirector_ec2
+
+    - name: Locate DNS redirector EC2 RAI stack instances
+      ec2_instance_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        filters:
+          "tag:stack": "{{ rai_redirector_stack_tag }}"
+      register: dns_redirector_ec2
+
+    ########### TERMINIATE RESOURCES ###########
+    - name: Attack EC2 RAI stack terminate
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ aws_region }}"
+        state: absent
+        instance_ids: "{{ item.instance_id }}"
+      with_items: "{{ attack_ec2.instances }}"
+
+    - name: HTTP Redirector EC2 RAI stack terminate
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_http_region }}"
+        state: absent
+        instance_ids: "{{ item.instance_id }}"
+      with_items: "{{ http_redirector_ec2.instances }}"
+    
+    - name: HTTPS Redirector EC2 RAI stack terminate
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_https_region }}"
+        state: absent
+        instance_ids: "{{ item.instance_id }}"
+      with_items: "{{ https_redirector_ec2.instances }}"
+
+    - name: DNS Redirector EC2 RAI stack terminate
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ rai_redirector_server_dns_region }}"
+        state: absent
+        instance_ids: "{{ item.instance_id }}"
+      with_items: "{{ dns_redirector_ec2.instances }}"
