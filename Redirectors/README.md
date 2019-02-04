@@ -39,14 +39,14 @@ docker build --build-arg TEAM_SERVER="https://TEAM_SERVER_IP:port_fwdg_to" --bui
 **f** - This is the port that will correspond with the port you specified with the LPORT value when  
         the image was built.  It will be mapped to the port exposed on the host.   
 ```
-docker run -p a.b.c.d:e:f repo/http:1.0
+docker run -d -p a.b.c.d:e:f repo/http:1.0
 ```
 **HTTP Example:**
 ```
-docker run -p 53.43.177.239:80:80 repo/http:1.0
+docker run -d -p 53.43.177.239:80:80 repo/http:1.0
 ```
 **HTTPS Example**
 ```
-docker run -p 53.43.177.239:443:443 repo/https:1.0
+docker run -d -p 53.43.177.239:443:443 repo/https:1.0
 ```
 
