@@ -31,6 +31,7 @@ echo "\t\tinactive=24h max_size=1g;"  >> nginx.conf && \
 echo "server {\n  listen $LPORT;\n" >> nginx.conf && \
 echo "  location  / {" >> nginx.conf && \
 echo "\t\tproxy_pass $TEAM_SERVER;" >> nginx.conf && \
+echo "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> nginx.conf && \
 echo "\t\tproxy_set_header Host \$host;" >> nginx.conf && \
 echo "\t\tproxy_cache STATIC;" >> nginx.conf && \
 echo "\t\tproxy_cache_valid 200 1d;" >> nginx.conf && \
