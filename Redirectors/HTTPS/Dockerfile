@@ -35,6 +35,7 @@ echo "ssl_certificate_key /etc/nginx/ssl/gte-key.pem;" >> nginx.conf && \
 echo "ssl_verify_client  off;" >> nginx.conf && \
 echo "  location  / {" >> nginx.conf && \
 echo "\t\tproxy_pass $TeamServer;" >> nginx.conf && \
+echo "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> nginx.conf && \
 echo "\t\tproxy_set_header Host \$host;" >> nginx.conf && \
 echo "\t\tproxy_ssl_certificate /etc/nginx/ssl/gte-cert.pem;" >> nginx.conf && \
 echo "\t\tproxy_ssl_certificate_key /etc/nginx/ssl/gte-key.pem;" >> nginx.conf && \
