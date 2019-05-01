@@ -41,8 +41,8 @@ echo "ssl_certificate_key /etc/nginx/ssl/gte-key.pem;" >> nginx.conf && \
 echo "ssl_verify_client  off;" >> nginx.conf && \
 echo "  location  / {" >> nginx.conf && \
 echo "\t\tproxy_pass $TeamServer;" >> nginx.conf && \
-echo "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> nginx.conf && \
 echo "\t\tproxy_set_header Host \$host;" >> nginx.conf && \
+echo "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> nginx.conf && \
 echo "\t\tproxy_ssl_certificate /etc/nginx/ssl/gte-cert.pem;" >> nginx.conf && \
 echo "\t\tproxy_ssl_certificate_key /etc/nginx/ssl/gte-key.pem;" >> nginx.conf && \
 echo "\t\tproxy_ssl_verify  off;"  >> nginx.conf && \
@@ -54,7 +54,7 @@ echo "\ndaemon off;" >> nginx.conf && \
 chown -R www-data:www-data /var/lib/nginx
 
 # Run certbot to obtain our cert
-RUN certbot --nginx --agree-tos --renew-by-default -d $DOMAIN 
+RUN certbot --nginx --no-redirect --non-interactive --agree-tos --renew-by-default -d $DOMAIN 
 # Define Mountable Directories
 VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", \
 "/etc/nginx/conf.d", "/var/log/nginx", "/var/www/html"]
