@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 RUN add-apt-repository universe && \
 	add-apt-repository ppa:certbot/certbot && \
 	apt-get update && \
-	apt-get install certbot python-certbot-nginx 
+	apt-get install -y certbot python-certbot-nginx 
 
 # Configure Tools
 WORKDIR /etc/nginx
