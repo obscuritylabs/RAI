@@ -54,7 +54,7 @@ echo "\ndaemon off;" >> nginx.conf && \
 chown -R www-data:www-data /var/lib/nginx
 
 # Run certbot to obtain our cert
-RUN certbot --nginx --no-redirect --non-interactive --agree-tos --register-unsafely-without-email --renew-by-default -d $DOMAIN 
+RUN certbot certonly --no-redirect --non-interactive --agree-tos --register-unsafely-without-email --renew-by-default -d $DOMAIN 
 # Define Mountable Directories
 VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", \
 "/etc/nginx/conf.d", "/var/log/nginx", "/var/www/html"]
