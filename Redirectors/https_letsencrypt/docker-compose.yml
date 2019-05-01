@@ -1,0 +1,10 @@
+version: "3.7"
+nginx:
+  build:
+    dockerfile: Dockerfile
+  container_name: nginx
+  volumes:
+      - ./fullchain.pem:/data/nfs
+
+sudo docker run -it --name certbot -v ./data/letsencrypt:/etc/letsencrypt -v ./data/log/letsencrypt:/var/log/letsencrypt --agree-tos --renew-by-default -d cdn.hyattresorts.us.com
+sudo docker run -it -p80:80 -v ./data/letsencrypt:/etc/letsencrypt -v ./data/log/letsencrypt:/var/log/letsencrypt certbot/certbot -t certonly --standalone --register-unsafely-without-email --agree-tos -d cdn.hyattresorts.us.com

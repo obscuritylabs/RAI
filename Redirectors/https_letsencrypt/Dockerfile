@@ -35,8 +35,8 @@ echo "  location  / {" >> nginx.conf && \
 echo "\t\tproxy_pass $TeamServer;" >> nginx.conf && \
 echo "\t\tproxy_set_header Host \$host;" >> nginx.conf && \
 echo "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> nginx.conf && \
-echo "\t\tproxy_ssl_certificate /etc/nginx/ssl/gte-cert.pem;" >> nginx.conf && \
-echo "\t\tproxy_ssl_certificate_key /etc/nginx/ssl/gte-key.pem;" >> nginx.conf && \
+echo "\t\tproxy_ssl_certificate /etc/nginx/ssl/fullchain.pem;" >> nginx.conf && \
+echo "\t\tproxy_ssl_certificate_key /etc/nginx/ssl/privkey.pem;" >> nginx.conf && \
 echo "\t\tproxy_ssl_verify  off;"  >> nginx.conf && \
 echo "\t\tproxy_cache STATIC;" >> nginx.conf && \
 echo "\t\tproxy_cache_valid 200 1d;" >> nginx.conf && \
