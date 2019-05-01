@@ -10,7 +10,6 @@ ARG LPORT
 RUN apt-get update && apt-get install -y \
 	vim \
 	openssl \
-	software-properties-common \
 	nginx 
 
 # Configure Tools
