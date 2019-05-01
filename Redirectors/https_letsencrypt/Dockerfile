@@ -8,7 +8,6 @@ ARG LPORT
 
 # Update The Baseline
 RUN apt-get update && apt-get install -y \
-	openssl \
 	nginx 
 
 # Configure Tools
