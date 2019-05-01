@@ -28,8 +28,8 @@ echo "events {\n\t\tworker_connections 768;\n}" >> nginx.conf && \
 echo "http {\n\t\tproxy_cache_path /data/nginx/cache levels=1:2 keys_zone=STATIC:10m"  >> nginx.conf && \
 echo "\t\tinactive=24h max_size=1g;"  >> nginx.conf && \
 echo "server {\n  listen $LPORT ssl;\n" >> nginx.conf && \
-echo "ssl_certificate /etc/nginx/ssl/gte-cert.pem;" >> nginx.conf && \
-echo "ssl_certificate_key /etc/nginx/ssl/gte-key.pem;" >> nginx.conf && \
+echo "ssl_certificate /etc/nginx/ssl/fullchain.pem;" >> nginx.conf && \
+echo "ssl_certificate_key /etc/nginx/ssl/privkey.pem;" >> nginx.conf && \
 echo "ssl_verify_client  off;" >> nginx.conf && \
 echo "  location  / {" >> nginx.conf && \
 echo "\t\tproxy_pass $TeamServer;" >> nginx.conf && \
