@@ -3,11 +3,10 @@ services:
   nginx:
     build:
       dockerfile: Dockerfile
-    container_name: nginx
-    args:
-      - LPORT=${l_port}
-      - TeamServer=${team_server}
-      - DOMAIN_NAME=${domain_name}
+      args:
+        - LPORT=${l_port}
+        - TeamServer=${team_server}
+        - DOMAIN_NAME=${domain_name}
     volumes:
         - /certs/letsencrypt/live/${domain_name}/privkey.pem:/etc/nginx/ssl/privkey.pem
         - /certs/letsencrypt/live/${domain_name}/fullchain.pem:/etc/nginx/ssl/fullchain.pem
