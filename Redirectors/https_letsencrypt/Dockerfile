@@ -7,6 +7,7 @@ ARG TeamServer
 ARG LPORT
 ARG DOMAIN
 
+EXPOSE 80 443
 # Update The Baseline
 RUN apt-get update && apt-get install -y \
 	vim \
