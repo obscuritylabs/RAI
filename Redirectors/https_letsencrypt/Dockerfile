@@ -5,21 +5,13 @@ MAINTAINER @killswitch_gui
 # Build Time Arguments..
 ARG TeamServer
 ARG LPORT
-ARG DOMAIN
 
-EXPOSE 80 443
 # Update The Baseline
 RUN apt-get update && apt-get install -y \
 	vim \
 	openssl \
 	software-properties-common \
 	nginx 
-
-# Install certbot for Letsencrypt
-RUN add-apt-repository universe && \
-	add-apt-repository ppa:certbot/certbot && \
-	apt-get update && \
-	apt-get install -y certbot python-certbot-nginx 
 
 # Configure Tools
 WORKDIR /etc/nginx
@@ -53,8 +45,6 @@ echo "\t\t\thttp_500 http_502 http_504;\n\t}\n}\n}" >> nginx.conf && \
 echo "\ndaemon off;" >> nginx.conf && \
 chown -R www-data:www-data /var/lib/nginx
 
-# Run certbot to obtain our cert
-RUN certbot --nginx certonly --no-redirect --non-interactive --agree-tos --register-unsafely-without-email --renew-by-default -d $DOMAIN 
 # Define Mountable Directories
 VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", \
 "/etc/nginx/conf.d", "/var/log/nginx", "/var/www/html"]
