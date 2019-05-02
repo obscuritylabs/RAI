@@ -10,6 +10,3 @@ services:
     volumes:
         - /certs/letsencrypt/live/${domain_name}/privkey.pem:/etc/nginx/ssl/privkey.pem
         - /certs/letsencrypt/live/${domain_name}/fullchain.pem:/etc/nginx/ssl/fullchain.pem
-
-
-
