@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  cobaltstrike:
+    build:
+      context: CobaltStrike
+      dockerfile: Dockerfile
+      args:
+        CS_KEY: ${CS_KEY}
+    container_name: ${CS_NODE_NAME}
+    command: ${CS_BIND_IP} ${CS_PASSWORD} 
+    ports:
+      - ${CS_EXPOSE_PORT}:50050
+    volumes:
+      - type: volume
+        source: csdata0
+        target: /opt/cobaltstrike
+    networks:
+      - cobaltstrike
+
+volumes:
+  csdata0:
+
+networks:
+  cobaltstrike:
