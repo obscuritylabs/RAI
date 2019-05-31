@@ -8,4 +8,4 @@ export l_port=$3
 
 docker run -it -p80:80 -v /certs/letsencrypt:/etc/letsencrypt -v /certs/log/letsencrypt:/var/log/letsencrypt certbot/certbot -t certonly --standalone --register-unsafely-without-email --agree-tos -d $1
 
-docker-compose up 
+docker-compose up -d
