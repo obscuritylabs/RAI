@@ -2,6 +2,7 @@ version: "3.7"
 services:
   nginx:
     build:
+      context: .
       dockerfile: Dockerfile
       args:
         - LPORT=${l_port}
@@ -10,6 +11,3 @@ services:
     volumes:
         - /certs/letsencrypt/live/${domain_name}/privkey.pem:/etc/nginx/ssl/privkey.pem
         - /certs/letsencrypt/live/${domain_name}/fullchain.pem:/etc/nginx/ssl/fullchain.pem
-
-
-
