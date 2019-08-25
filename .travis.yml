@@ -7,7 +7,8 @@ env:
     - USERNAME_TAG=obscuritylabs
     - ASE_BASEIMAGE_TAG=ase
 
-jobs:
-  include:
-    - script: cd ase_docker && docker build --compress -t $USERNAME_TAG/$ASE_BASEIMAGE_TAG:latest .
-    - script: cd ase_docker/searchsploit && docker build --compress -t $USERNAME_TAG/$ASE_BASEIMAGE_TAG:latest .
+before_install:
+  - sudo apt-get install build-essential
+
+install:
+  - cd ase_docker && docker-compose build --parallel

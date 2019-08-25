@@ -1,0 +1,12 @@
+version: '3'
+services:
+  ase:
+    image: ${REPOSITORY}/${ASE_TARGET_IMAGE}:${STACK_TARGET_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+  ase-searchsploit:
+    image: ${REPOSITORY}/${SEARCHSPLOIT_TARGET_IMAGE}:${STACK_TARGET_TAG}
+    build: 
+      context: ./searchsploit
+      dockerfile: Dockerfile

@@ -1,8 +1,3 @@
-
-
-
-
-
 ### Buillding the base container
 
 ```bash
