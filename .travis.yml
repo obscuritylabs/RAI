@@ -1,5 +1,7 @@
 dist: bionic
-language: go
+language: minimal
+services:
+  - docker
 env:
   global:
     - USERNAME_TAG=obscuritylabs
