@@ -9,5 +9,5 @@ env:
 
 jobs:
   include:
-    - script: cd ase_docker && docker build --squash --compress -t $USERNAME_TAG/$ASE_BASEIMAGE_TAG:latest .
-    - script: cd ase_docker/searchsploit && docker build --squash --compress -t $USERNAME_TAG/$ASE_BASEIMAGE_TAG:latest .
+    - script: cd ase_docker && docker build --compress -t $USERNAME_TAG/$ASE_BASEIMAGE_TAG:latest .
+    - script: cd ase_docker/searchsploit && docker build --compress -t $USERNAME_TAG/$ASE_BASEIMAGE_TAG:latest .
