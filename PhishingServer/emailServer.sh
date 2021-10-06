@@ -106,6 +106,11 @@ sudo openssl dhparam -out dhparam.pem 2048
 sudo docker network create --driver bridge onlyoffice
 
 # Pull & Start MYSQL Server
+sudo docker pull onlyoffice/mailserver:1.6.27
+sudo docker pull mysql:5.7.24
+sudo docker pull onlyoffice/documentserver:5.1.1.23
+sudo docker pull onlyoffice/communityserver:9.6.0.593
+
 sudo docker run --net onlyoffice -i -t -d \
 	--restart=always \
 	--name onlyoffice-mysql-server \
@@ -114,7 +119,7 @@ sudo docker run --net onlyoffice -i -t -d \
 	-v $mysqlinit:/docker-entrypoint-initdb.d \
 	-e MYSQL_ROOT_PASSWORD=TempP@ssW0rd12! \
 	-e MYSQL_DATABASE=onlyoffice \
-	mysql:5.7
+	mysql:5.7.24
 
 # Pull & Start Document Server
 sudo docker run --net onlyoffice -i -t -d --restart=always \
@@ -123,7 +128,7 @@ sudo docker run --net onlyoffice -i -t -d --restart=always \
 	-v $dslogs:/var/log/onlyoffice \
 	-v $dslib:/var/lib/onlyoffice \
 	-v $dsdb:/var/lib/postgresql \
-	onlyoffice/documentserver:5.2.8.24
+	onlyoffice/documentserver:5.1.1.23
 
 # Pull & Start Mail Server
 sudo docker run --net onlyoffice --privileged \
@@ -141,7 +146,7 @@ sudo docker run --net onlyoffice --privileged \
 	-v $mscerts:/etc/pki/tls/mailserver \
 	-v $mslogs:/var/log \
 	-h "$1" \
-	onlyoffice/mailserver:1.6.5
+	onlyoffice/mailserver:1.6.27
 
 # Get the IP of the container running as the mail server so that it can 
 # communicate with the MYSQL DB
@@ -167,6 +172,6 @@ sudo docker run --net onlyoffice -t -t -d --restart=always \
 	-e MAIL_SERVER_DB_PASS=TempP@ssW0rd12! \
 	-v $csdata:/var/www/onlyoffice/Data \
 	-v $cslogs:/var/log/onlyoffice \
-	onlyoffice/communityserver:9.6.5.771
+	onlyoffice/communityserver:9.6.0.593
 
 
