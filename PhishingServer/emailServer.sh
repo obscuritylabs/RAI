@@ -123,7 +123,7 @@ sudo docker run --net onlyoffice -i -t -d --restart=always \
 	-v $dslogs:/var/log/onlyoffice \
 	-v $dslib:/var/lib/onlyoffice \
 	-v $dsdb:/var/lib/postgresql \
-	onlyoffice/documentserver
+	onlyoffice/documentserver:5.2.8.24
 
 # Pull & Start Mail Server
 sudo docker run --net onlyoffice --privileged \
@@ -141,7 +141,7 @@ sudo docker run --net onlyoffice --privileged \
 	-v $mscerts:/etc/pki/tls/mailserver \
 	-v $mslogs:/var/log \
 	-h "$1" \
-	onlyoffice/mailserver
+	onlyoffice/mailserver:1.6.5
 
 # Get the IP of the container running as the mail server so that it can 
 # communicate with the MYSQL DB
@@ -167,6 +167,6 @@ sudo docker run --net onlyoffice -t -t -d --restart=always \
 	-e MAIL_SERVER_DB_PASS=TempP@ssW0rd12! \
 	-v $csdata:/var/www/onlyoffice/Data \
 	-v $cslogs:/var/log/onlyoffice \
-	onlyoffice/communityserver
+	onlyoffice/communityserver:9.6.5.771
 
 
