@@ -12,6 +12,15 @@ usage is pretty straight forward.. **_dns_redir.sh ip.to.fwd.to port_**
 sudo .\DNS_redir.sh 53.43.177.239 2224
 ```
 
+**MANUAL ENTRY**
+```
+iptables -I INPUT -p udp -m udp --dport 53 -j ACCEPT
+iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination <IP-GOES-HERE>:53
+iptables -t nat -A POSTROUTING -j MASQUERADE
+iptables -I FORWARD -j ACCEPT
+iptables -P FORWARD ACCEPT
+sysctl net.ipv4.ip_forward=1
+```
 
 ## **HTTP/HTTPS**
 
