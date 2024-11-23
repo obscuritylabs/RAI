@@ -1,6 +1,6 @@
 # Pull The 16.04 Baseline Image
 FROM ubuntu:16.04
-MAINTAINER @real_slacker007
+LABEL @real_slacker007
 
 # Environment Variables.. 
 # (Be Careful.. Each will persist inside the container)
