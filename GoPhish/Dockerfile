@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER <@real_slacker007>
+LABEL <@real_slacker007>
 
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install --no-install-recommends -y \

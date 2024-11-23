@@ -1,6 +1,6 @@
 # Pull The 16.04 Baseline Image
 FROM ubuntu:16.04
-MAINTAINER @killswitch_gui
+LABEL @killswitch_gui
 
 # Build Time Arguments..
 ARG TeamServer

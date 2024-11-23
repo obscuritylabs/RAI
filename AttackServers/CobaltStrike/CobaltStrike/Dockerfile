@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-MAINTAINER Killswitch-GUI
+LABEL Killswitch-GUI
 LABEL version="1.1"
 LABEL description="Dockerfile base for CobaltStrike."
 
